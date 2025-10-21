@@ -189,40 +189,11 @@ def visualizar_centralidade(G, medidas, medida_nome, top_k=10):
     labels = {no: f"{no}\n{centralidade[no]:.3f}" for no in top_nos_set}
     nx.draw_networkx_labels(G, pos, labels, font_size=8, font_color='black')
     
-    plt.title(f"Top {top_k} Nós por {medida_nome.title()}")
+    plt.title(f"Top {top_k} nós - Centralidade de {medida_nome.title()}")
     plt.axis('off')
     plt.tight_layout()
     plt.show()
 
-def criar_grafico_barras_centralidade(medidas, top_k=10):
-    axes = plt.subplots(2, 2, figsize=(15, 12))[1]
-    axes = axes.flatten()
-    
-    medidas_nomes = ['grau', 'intermediacao', 'proximidade', 'autovetor']
-    medidas_titulos = ['Centralidade de Grau', 'Centralidade de Intermediação', 
-                      'Centralidade de Proximidade', 'Centralidade de Autovetor']
-    
-    for i, (medida_nome, titulo) in enumerate(zip(medidas_nomes, medidas_titulos)):
-        # Obtém os top k nós
-        top_nos = sorted(medidas[medida_nome].items(), key=lambda x: x[1], reverse=True)[:top_k]
-        
-        nos_ids = [str(no) for no, _ in top_nos]
-        valores = [valor for _, valor in top_nos]
-        
-        # Cria o gráfico de barras
-        axes[i].bar(nos_ids, valores, color='skyblue', alpha=0.7)
-        axes[i].set_title(titulo)
-        axes[i].set_xlabel('ID do Nó')
-        axes[i].set_ylabel('Valor da Centralidade')
-        axes[i].tick_params(axis='x', rotation=45)
-        
-        # Adiciona valores nas barras
-        for j, v in enumerate(valores):
-            axes[i].text(j, v + max(valores)*0.01, f'{v:.3f}', 
-                        ha='center', va='bottom', fontsize=8)
-    
-    plt.tight_layout()
-    plt.show()
 
 def criar_heatmap_correlacao(medidas):
     # Converte para DataFrame
@@ -234,7 +205,7 @@ def criar_heatmap_correlacao(medidas):
     # Cria o heatmap
     plt.figure(figsize=(8, 6))
     sns.heatmap(correlacao, annot=True, cmap='coolwarm', center=0,
-                square=True, linewidths=0.5)
+                square=True, linewidths=0.5, vmin=-1.0, vmax=1.0)
     plt.title('Correlação entre Medidas de Centralidade')
     plt.tight_layout()
     plt.show()
@@ -242,15 +213,12 @@ def criar_heatmap_correlacao(medidas):
 
 def gerar_relatorio_visualizacao(G, medidas, comunidades_dict):
     print("1. Comunidades do grafo")
-    visualizar_grafo_comunidades(G, comunidades_dict, "Grafo do Facebook com Comunidades Detectadas")
+    visualizar_grafo_comunidades(G, comunidades_dict, "Visualização - Comunidades detectadas")
     
     print("2. Medidas de centralidade")
     for medida_nome in medidas.keys():
         print(f"   - {medida_nome}")
         visualizar_centralidade(G, medidas, medida_nome, top_k=10)
-    
-    # print("3. Gráficos de barras")
-    # criar_grafico_barras_centralidade(medidas, top_k=10)
     
     print("3. Heatmap de correlação")
     criar_heatmap_correlacao(medidas)
@@ -281,38 +249,11 @@ def analisar_grafo(G, comunidades_dict, comunidades_list, nos_influentes):
     
     for medida, nome_completo in nomes_medidas.items():
         print(f"\n   {nome_completo.upper()}:")
-        top_5 = nos_influentes[medida][:5]
+        top_5 = nos_influentes[medida]
         
         for i, (no, valor) in enumerate(top_5, 1):
             comunidade = comunidades_dict.get(no, 'N/A')
             print(f"      {i}. Nó {no}: valor={valor:.4f}, comunidade={comunidade}")
-    
-    print(f"\nINTERPRETAÇÕES:")
-    print(f"   • NÓS COM ALTA CENTRALIDADE DE GRAU:")
-    print(f"     - São os mais conectados diretamente")
-    print(f"     - Têm potencial para espalhar informações rapidamente")
-    print(f"     - Podem ser considerados 'hubs' da rede")
-    
-    print(f"\n   • NÓS COM ALTA CENTRALIDADE DE INTERMEDIAÇÃO:")
-    print(f"     - Atuam como 'pontes' entre diferentes partes da rede")
-    print(f"     - Controlam o fluxo de informações")
-    print(f"     - Importantes para conectividade da rede")
-    
-    print(f"\n   • NÓS COM ALTA CENTRALIDADE DE PROXIMIDADE:")
-    print(f"     - Podem alcançar todos os outros nós com poucos passos")
-    print(f"     - Eficientes para espalhar informações globalmente")
-    print(f"     - Centralmente posicionados na rede")
-    
-    print(f"\n   • NÓS COM ALTA CENTRALIDADE DE AUTOVETOR:")
-    print(f"     - Conectados a outros nós importantes")
-    print(f"     - Podem ser considerados 'influenciadores' de influenciadores")
-    
-    
-    print(f"\nRECOMENDAÇÕES:")
-    print(f"   • Para campanhas de marketing: focar nos nós com alta centralidade de grau")
-    print(f"   • Para espalhar informações rapidamente: usar nós com alta proximidade")
-    print(f"   • Para conectar comunidades: priorizar nós com alta intermediação")
-    print(f"   • Para influenciar influenciadores: trabalhar com nós de alta centralidade de autovetor")
 
 
 if __name__ == "__main__":
